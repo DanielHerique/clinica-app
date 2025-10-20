@@ -2,14 +2,13 @@
   publish = "."
   command = ""
 
-# Proxy: redireciona chamadas /api para o Apps Script
 [[redirects]]
   from = "/api/*"
-  to = "https://script.google.com/macros/s/AKfycbyh3YoV7WOCcC80KLTuaCQsXM-JrP9UryY2FTjVXuFMgdicjB-FrPzeKWsH5-c0tMWX/exec/:splat"
+  to = "https://script.google.com/macros/s/AKfycbyh3YoV7WOCcC80KLTuaCQsXM-JrP9UryY2FTjVXuFMgdicjB-FrPzeKWsH5-c0tMWX/exec"
   status = 200
   force = true
 
-# SPA fallback – garante que o app abra em qualquer rota
+# SPA fallback (manter)
 [[redirects]]
   from = "/*"
   to = "/index.html"
