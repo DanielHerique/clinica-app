@@ -1,19 +1,13 @@
 [build]
   publish = "."
   command = ""
+  functions = "netlify/functions"
 
-# Proxy para o Apps Script (cobre /api e /api/*)
-[[redirects]]
-  from = "/api"
-  to = "https://script.google.com/macros/s/AKfycbyh3YoV7WOCcC80KLTuaCQsXM-JrP9UryY2FTjVXuFMgdicjB-FrPzeKWsH5-c0tMWX/exec"
-  status = 200
-  force = true
-
+# Proxy da API para a Function (sem CORS no navegador)
 [[redirects]]
   from = "/api/*"
-  to = "https://script.google.com/macros/s/AKfycbyh3YoV7WOCcC80KLTuaCQsXM-JrP9UryY2FTjVXuFMgdicjB-FrPzeKWsH5-c0tMWX/exec"
+  to = "/.netlify/functions/api/:splat"
   status = 200
-  force = true
 
 # SPA fallback
 [[redirects]]
