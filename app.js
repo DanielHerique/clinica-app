@@ -1,6 +1,6 @@
 /************************************************************
  *  APP CLÍNICA 2025 - INTEGRAÇÃO PLANILHA GOOGLE ONLINE
- *  AUTOR: Conversu | Versão consolidada
+ *  AUTOR: Daniel | Versão consolidada
  ************************************************************/
 
 /************************************************************

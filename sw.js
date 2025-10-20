@@ -1,5 +1,5 @@
-// sw.js — versão final para Clínica App (Google Sheets + PWA)
-const CACHE_NAME = "clinica-cache-v5"; // atualize versão sempre que alterar app.js / css
+// sw.js — Clínica App (Google Sheets + PWA)
+const CACHE_NAME = "clinica-cache-v6"; // << troque a versão sempre que alterar app.js/css
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
@@ -7,27 +7,23 @@ const FILES_TO_CACHE = [
   "./app.js",
   "./manifest.json",
   "./icon-192.png",
-  "./icon-512.png"
+  "./icon-512.png",
 ];
 
 // ===== INSTALAÇÃO =====
 self.addEventListener("install", (event) => {
-  console.log("[ServiceWorker] Instalando e cacheando arquivos...");
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(FILES_TO_CACHE))
+      .then((cache) => cache.addAll(FILES_TO_CACHE))
       .then(() => self.skipWaiting())
   );
 });
 
 // ===== ATIVAÇÃO =====
 self.addEventListener("activate", (event) => {
-  console.log("[ServiceWorker] Ativando nova versão...");
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.map(k => (k !== CACHE_NAME ? caches.delete(k) : null))
-      )
+    caches.keys().then((keys) =>
+      Promise.all(keys.map((k) => (k !== CACHE_NAME ? caches.delete(k) : null)))
     ).then(() => self.clients.claim())
   );
 });
@@ -36,9 +32,9 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(event.request)
-      .then((response) => response || fetch(event.request))
+      .then((cached) => cached || fetch(event.request))
       .catch(() => {
-        // fallback opcional (ex: página offline)
+        // fallback para navegação se estiver offline
         if (event.request.mode === "navigate") {
           return caches.match("./index.html");
         }
