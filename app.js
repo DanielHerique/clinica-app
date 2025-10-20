@@ -7,7 +7,8 @@
  *  SEÇÃO 1 — CONFIGURAÇÕES E UTILITÁRIOS GERAIS
  ************************************************************/
 
-const API_URL = "https://script.google.com/macros/s/AKfycbyh3YoV7WOCcC80KLTuaCQsXM-JrP9UryY2FTjVXuFMgdicjB-FrPzeKWsH5-c0tMWX/exec";
+
+const API_URL = "/api";
 
 function showToast(msg) {
   const el = document.createElement("div");

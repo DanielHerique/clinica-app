@@ -2,7 +2,14 @@
   publish = "."
   command = ""
 
-# SPA fallback para sempre entregar index.html
+# Proxy: tudo que começar com /api vai para o Apps Script
+[[redirects]]
+  from = "/api/*"
+  to = "https://script.google.com/macros/s/AKfycbyh3YoV7WOCcC80KLTuaCQsXM-JrP9UryY2FTjVXuFMgdicjB-FrPzeKWsH5-c0tMWX/exec/:splat"
+  status = 200
+  force = true
+
+# SPA fallback – deixa por último
 [[redirects]]
   from = "/*"
   to = "/index.html"
