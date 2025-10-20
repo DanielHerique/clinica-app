@@ -1,0 +1,9 @@
+[build]
+  publish = "."
+  command = ""
+
+# SPA fallback para sempre entregar index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
