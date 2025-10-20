@@ -3,39 +3,52 @@ const GAS_BASE = "https://script.google.com/macros/s/AKfycbyh3YoV7WOCcC80KLTuaCQ
 
 export default async (req, res) => {
   try {
-    // Remonta a URL do GAS com a query original (/api?... -> GAS?...).
     const url = new URL(req.url, `http://${req.headers.host}`);
-    const qs = url.search ? url.search : "";
+    const qs = url.search || "";
     const target = GAS_BASE + qs;
 
-    // Encaminha método, body e headers "simples".
+    // Configuração da requisição
     const init = {
       method: req.method,
+      redirect: "manual", // <---- NÃO seguir redirect automático
       headers: { "Content-Type": "application/json" },
     };
 
     if (req.method !== "GET" && req.method !== "HEAD") {
-      // Body já chega como string no Netlify; se precisar, usamos tal qual
       const chunks = [];
       for await (const ch of req) chunks.push(ch);
       const raw = Buffer.concat(chunks).toString() || "{}";
       init.body = raw;
     }
 
+    // Executa requisição
     const r = await fetch(target, init);
-    const text = await r.text(); // pode ser JSON; tratamos como texto para repassar 1:1
 
-    // Devolve sempre JSON para o front e **com CORS liberado**.
-    res.status(r.status).setHeader("Content-Type", "application/json");
+    // Se o GAS retornou um redirect (302), segue manualmente
+    if (r.status === 302) {
+      const redirectUrl = r.headers.get("location");
+      const follow = await fetch(redirectUrl);
+      const data = await follow.text();
+
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+      return res.status(200).send(data);
+    }
+
+    // Caso normal
+    const text = await r.text();
+
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    // Pré-flight
     if (req.method === "OPTIONS") return res.status(204).end();
 
-    return res.send(text);
+    return res.status(r.status).send(text);
   } catch (err) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
     res.status(500).json({ ok: false, error: String(err) });
   }
 };
