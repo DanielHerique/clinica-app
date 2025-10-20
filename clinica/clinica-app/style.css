@@ -1,0 +1,275 @@
+/* ============================
+   🎨 Design tokens / base
+============================ */
+:root{
+  --brand:#0B69FF;
+  --brand-600:#0A58D0;
+  --bg:#f6f8fa;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --card:#fff;
+  --border:#e5e7eb;
+  --shadow:0 2px 6px rgba(0,0,0,.08);
+  --shadow-soft:0 1px 4px rgba(0,0,0,.05);
+  --radius:12px;
+}
+
+*{ box-sizing: border-box; }
+html,body{ height:100%; }
+body{
+  margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background:var(--bg); color:var(--text);
+  display:flex; flex-direction:column; min-height:100vh;
+}
+a{ color:inherit; text-decoration:none; }
+
+main{ flex:1 0 auto; padding:16px; }
+
+/* ============================
+   🧭 Header / Nav
+============================ */
+header{
+  background:var(--brand);
+  color:#fff;
+  text-align:center;
+  padding:18px 12px 12px;
+}
+header h1{ margin:0 0 8px; font-size:28px; }
+
+nav{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+nav button{
+  border:0; border-radius:10px;
+  background:#fff; color:var(--brand);
+  padding:8px 14px; font-weight:700; cursor:pointer;
+}
+nav button:hover{ background:#edf4ff; }
+nav button.active{ background:var(--brand-600); color:#fff; box-shadow:var(--shadow); }
+
+.page-indicator{
+  background:#eef6ff; color:#0b53b5; border:1px solid #d5e8ff;
+  padding:10px 14px; border-radius:12px; display:inline-block; margin-bottom:12px;
+}
+
+/* ============================
+   🧰 Form / Inputs / Buttons
+============================ */
+form{ display:flex; flex-direction:column; gap:10px; }
+input,select,textarea{
+  width:100%; padding:10px 12px; border:1px solid var(--border);
+  border-radius:10px; background:#fff; font-size:15px; outline:none;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:#c7d2fe; box-shadow:0 0 0 3px rgba(99,102,241,.18);
+}
+
+.btn-primario{
+  background:var(--brand); color:#fff; border:0; border-radius:10px;
+  padding:10px 14px; cursor:pointer; font-weight:700;
+}
+.btn-primario:hover{ background:var(--brand-600); }
+.btn-secundario{
+  background:#e5e7eb; color:#111827; border:0; border-radius:10px;
+  padding:10px 14px; cursor:pointer; font-weight:600;
+}
+.btn-secundario:hover{ background:#dfe2e7; }
+.btn-perigo{ background:#dc2626; color:#fff; border:0; border-radius:10px; padding:10px 14px; cursor:pointer; }
+.btn-perigo:hover{ background:#b91c1c; }
+.btn-mini{ padding:6px 10px; border-radius:8px; border:1px solid #cfd7e2; background:#fff; cursor:pointer; }
+.btn-mini:hover{ background:#f5f8ff; }
+
+.form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.form-grid .col-2{ grid-column:1 / -1; }
+
+.top-bar{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
+.top-bar input{ min-width:240px; }
+
+/* ============================
+   🧱 Cards / lists (pacientes)
+============================ */
+.grid-pacientes{
+  display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:10px;
+}
+.card-paciente{
+  background:var(--card); border:1px solid var(--border); border-radius:12px;
+  padding:12px; box-shadow:var(--shadow-soft); cursor:pointer; transition:transform .13s ease;
+}
+.card-paciente:hover{ transform:translateY(-2px); }
+.card-paciente h4{ margin:0 0 6px; font-size:16px; }
+.card-line{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.badge-mini{ padding:2px 8px; font-size:11px; font-weight:700; border-radius:999px; }
+.badge-mini.ok{ background:#eaffea; color:#196a1e; }
+.badge-mini.block{ background:#ffecec; color:#a60a0a; }
+.muted{ color:var(--muted); font-size:12px; }
+
+/* ============================
+   🪟 Modal (reutilizável)
+============================ */
+.modal{
+  display:none; position:fixed; inset:0; z-index:999;
+  background:rgba(0,0,0,.45); justify-content:center; align-items:center; padding:14px;
+}
+.modal-content{
+  background:#fff; width:92%; max-width:780px; max-height: calc(100vh - 40px);
+  border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.2);
+  display:flex; flex-direction:column; padding:16px 18px;
+}
+.modal .modal-body{ overflow:auto; }
+.modal-buttons{ display:flex; gap:8px; justify-content:space-between; margin-top:12px; }
+
+/* mantém botões visíveis em telas pequenas */
+@media (max-width: 640px){
+  .modal .modal-buttons{
+    position: sticky; bottom: -12px; padding-top:8px; background:#fff;
+  }
+}
+
+/* ============================
+   🔎 Search-select (typeahead)
+============================ */
+.search-select{ position:relative; }
+.search-select input{ width:100%; }
+.search-list{
+  position:absolute; left:0; right:0; top:100%;
+  background:#fff; border:1px solid var(--border); border-radius:10px;
+  box-shadow:0 10px 28px rgba(0,0,0,.08); z-index:50; display:none;
+  max-height:260px; overflow:auto;
+}
+.search-item{ padding:8px 10px; cursor:pointer; }
+.search-item:hover{ background:#f3f4f6; }
+.search-empty{ padding:8px 10px; color:#6b7280; }
+
+/* ============================
+   📅 Calendário
+============================ */
+.calendar-header,.calendar{ max-width:1100px; width:100%; margin:0 auto 12px; }
+.cal-nav{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+#calTitle{ min-width:220px; text-align:center; font-size:1.5rem; }
+
+.calendar{ display:flex; flex-direction:column; min-height: calc(100vh - 230px); }
+.cal-weekdays{
+  display:grid; grid-template-columns:repeat(7, 1fr);
+  background:#f0f2f8; color:#374151; font-weight:700; text-transform:lowercase;
+  border-radius:12px 12px 0 0; text-align:center;
+}
+.cal-weekdays > div{ padding:8px 0; }
+
+.cal-grid{
+  display:grid; grid-template-columns: repeat(7, minmax(120px, 1fr));
+  grid-auto-rows: minmax(120px, auto);
+  gap:8px;
+}
+
+.cal-day{
+  background:#fff; border:1px solid var(--border); border-radius:12px;
+  padding:6px; display:flex; flex-direction:column; overflow:hidden;
+  box-shadow:var(--shadow-soft); transition:transform .12s ease;
+}
+.cal-day:hover{ transform:scale(1.015); z-index:2; }
+.cal-day-header{ display:flex; justify-content:space-between; align-items:center; font-weight:700; margin-bottom:4px; }
+.cal-day-number{ font-size:.95rem; }
+.cal-events{ flex:1; overflow:auto; display:flex; flex-direction:column; gap:6px; }
+
+/* fins de semana com leve fundo */
+.cal-day:nth-child(7n), .cal-day:nth-child(7n+1){ background:#fafafa; }
+.other-month{ background:#f5f5f5; color:#8c8c8c; }
+.today{ border:2px solid var(--brand); }
+
+/* Chips */
+.event-chip{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:6px 8px; border:1px solid #e6ebf5; border-radius:8px; line-height:1.2;
+  background:#edf5ff; color:#2457a6; font-size:.78rem;
+}
+.event-chip .event-name{ font-variant-numeric: tabular-nums; }
+.event-del{ background:none; border:none; color:#555; cursor:pointer; font-size:.95rem; padding:0 2px; }
+
+/* status cores */
+.event-chip.pending{ background:#fff7ed; border-color:#ffd7b8; color:#6b3d09; }
+.event-chip.done{    background:#ecfdf5; border-color:#cfead8; color:#146c36; }
+.event-chip.missed{  background:#fef2f2; border-color:#ffd6d6; color:#9f1d1d; }
+
+/* conflito visual */
+.event-chip.conflict{ outline:2px dashed #ff9b00; outline-offset:2px; }
+
+/* Legenda (opcional) */
+.cal-legend{ display:flex; gap:14px; align-items:center; margin:8px auto; max-width:1100px; color:#5b6b82; }
+.cal-legend .item{ display:inline-flex; gap:8px; align-items:center; }
+.status-dot{ width:10px; height:10px; border-radius:999px; display:inline-block; border:1px solid rgba(0,0,0,.08); }
+.status-dot.pending{ background:#f1f5fb; border-color:#dfe7f5; }
+.status-dot.done{    background:#e5f7ea; border-color:#c7ecd0; }
+.status-dot.missed{  background:#ffe9e9; border-color:#ffd0d0; }
+
+/* Modal do Dia */
+.day-card{
+  border:1px solid #eef1f6; border-radius:12px; padding:10px; margin-bottom:12px; background:#fff;
+}
+.day-card .meta{ font-size:.95rem; }
+.badge{ display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:700; }
+.badge.missed{ background:#ffe9e9; color:#a61717; }
+.badge.done{ background:#e8fff0; color:#1b6f35; }
+
+/* ============================
+   📊 Fiscal
+============================ */
+.fiscal-header{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+.fiscal-header .filter-bar{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.fiscal-header select, .fiscal-header input[type="month"]{ padding:8px 10px; border:1px solid var(--border); border-radius:10px; background:#fff; }
+
+.fiscal-summary{
+  display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  margin-bottom:12px;
+}
+.summary-card{
+  background:#fff; border:1px solid #eef1f6; border-radius:14px; padding:12px; box-shadow:var(--shadow-soft);
+}
+.summary-card .title{ font-size:.85rem; color:#5b6b82; margin-bottom:4px; text-transform:uppercase; letter-spacing:.3px; }
+.summary-card .value{ font-size:1.25rem; font-weight:800; color:#1f2937; }
+
+.fiscal-table{ width:100%; border-collapse:collapse; background:#fff; border:1px solid #eef1f6; border-radius:14px; overflow:hidden; }
+.fiscal-table thead th{
+  background:#f5f7fb; color:#5b6b82; padding:10px; text-align:left; font-weight:800; border-bottom:1px solid #e8edf5;
+}
+.fiscal-table tbody td{ padding:10px; border-bottom:1px solid #f2f4f9; }
+.fiscal-table tbody tr{ cursor:pointer; transition: background .12s, box-shadow .12s; }
+.fiscal-table tbody tr:hover{ background:#f4f9ff; box-shadow: inset 0 0 0 1px #e1edff; }
+.fiscal-table tfoot td{ padding:12px 10px; background:#f7f9fc; font-weight:700; border-top:1px solid #e8edf5; }
+
+/* ============================
+   📄 NF-e
+============================ */
+.fc-event-card{
+  border:1px solid #eef1f6; border-radius:12px; padding:10px; margin-bottom:10px; background:#fff;
+}
+.fc-row{ display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+.fc-chip{ display:inline-flex; background:#f5f7fb; color:#334155; border:1px solid #e8edf5; border-radius:999px; padding:4px 10px; font-size:12px; }
+.fc-status{ min-width:160px; }
+.fc-obs{ width:100%; margin-top:8px; }
+
+/* ============================
+   🧩 Utilidades / responsivo
+============================ */
+.section{ background:#fff; border:1px solid var(--border); border-radius:14px; padding:14px; }
+.section + .section{ margin-top:12px; }
+.row-clickable:hover{ background:#f8fafc; }
+.cell-link{ color:inherit; text-decoration:none; cursor:default; }
+
+@media (max-width:880px){
+  .form-grid{ grid-template-columns:1fr; }
+}
+
+/* ============================
+   ⤵️ Footer
+============================ */
+footer{
+  flex-shrink:0; width:100%; text-align:center; padding:12px 16px; color:#6b7280; background:transparent;
+}
+
+/* ============================
+   🔧 Scrollbar (opcional)
+============================ */
+.cal-events::-webkit-scrollbar,
+.modal .modal-body::-webkit-scrollbar,
+.search-list::-webkit-scrollbar{ width:8px; height:8px; }
+.cal-events::-webkit-scrollbar-thumb,
+.modal .modal-body::-webkit-scrollbar-thumb,
+.search-list::-webkit-scrollbar-thumb{ background:#d8deea; border-radius:8px; }

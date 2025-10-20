@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clínica App</title>
+
+  <!-- Manifesto do PWA -->
+  <link rel="manifest" href="./manifest.json">
+
+  <!-- Ícones -->
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-512.png">
+
+  <!-- Tema para PWA -->
+  <meta name="theme-color" content="#0B69FF" />
+
+  <!-- CSS principal -->
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+  <header>
+    <h1>Clínica App</h1>
+    <nav>
+      <button id="btnAgenda" class="active">Agenda</button>
+      <button id="btnPacientes">Pacientes</button>
+      <button id="btnFiscal">Fiscal</button>
+      <button id="btnNFe">NF-e</button>
+      <button id="btnSuporte">Suporte</button>
+    </nav>
+  </header>
+
+  <main id="content">
+    <!-- conteúdo renderizado dinamicamente pelo app.js -->
+  </main>
+
+  <footer>
+    © <span id="year"></span> Clínica App — Gestão Inteligente
+  </footer>
+
+  <!-- Script principal -->
+  <script src="./app.js"></script>
+
+  <!-- Registro do Service Worker -->
+  <script>
+    // atualiza o ano automaticamente
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // registra o service worker se suportado
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("./sw.js")
+          .then(() => console.log("✅ Service Worker registrado"))
+          .catch(err => console.warn("⚠️ Falha ao registrar SW:", err));
+      });
+    }
+  </script>
+</body>
+</html>
