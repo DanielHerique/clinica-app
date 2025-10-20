@@ -2,13 +2,20 @@
   publish = "."
   command = ""
 
+# Proxy para o Apps Script (cobre /api e /api/*)
+[[redirects]]
+  from = "/api"
+  to = "https://script.google.com/macros/s/AKfycbyh3YoV7WOCcC80KLTuaCQsXM-JrP9UryY2FTjVXuFMgdicjB-FrPzeKWsH5-c0tMWX/exec"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/api/*"
   to = "https://script.google.com/macros/s/AKfycbyh3YoV7WOCcC80KLTuaCQsXM-JrP9UryY2FTjVXuFMgdicjB-FrPzeKWsH5-c0tMWX/exec"
   status = 200
   force = true
 
-# SPA fallback (manter)
+# SPA fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"

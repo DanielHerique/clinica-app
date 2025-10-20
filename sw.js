@@ -1,5 +1,5 @@
 // sw.js — Clínica App (Google Sheets + PWA)
-const CACHE_NAME = "clinica-cache-v6"; // << troque a versão sempre que alterar app.js/css
+const CACHE_NAME = "clinica-cache-v7"; // << troque a versão sempre que alterar app.js/css
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
