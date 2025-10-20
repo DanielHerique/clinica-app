@@ -40,30 +40,53 @@ function formatMoney(v) {
 }
 
 /************************************************************
- *  SEÇÃO 2 — API GOOGLE SHEETS
+ *  SEÇÃO 2 — API GOOGLE SHEETS  (CORRIGIDA)
  ************************************************************/
 const api = {
+  async _json(res) {
+    // Garante JSON e sempre retorna {ok, data?}
+    const j = await res.json().catch(() => ({}));
+    return j && typeof j === "object" ? j : { ok: false };
+  },
+
   async list(tab) {
-    const res = await fetch(`${API_URL}?action=list&tab=${tab}`);
-    return await res.json();
+    // GET /api?action=list&tab=pacientes => { ok, data: [] }
+    const res = await fetch(`${API_URL}?action=list&tab=${encodeURIComponent(tab)}`, {
+      method: "GET",
+      // importante para evitar cache agressivo do SW/CDN
+      headers: { "Cache-Control": "no-cache" }
+    });
+    const j = await this._json(res);
+    return Array.isArray(j.data) ? j.data : [];
   },
+
   async add(tab, data) {
-    const res = await fetch(`${API_URL}?action=add&tab=${tab}`, {
+    // POST /api?action=create&tab=agenda com body=campos
+    const res = await fetch(`${API_URL}?action=create&tab=${encodeURIComponent(tab)}`, {
       method: "POST",
-      body: JSON.stringify(data),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data || {})
     });
-    return await res.json();
+    return await this._json(res); // { ok: true, id? }
   },
+
   async update(tab, id, data) {
-    const res = await fetch(`${API_URL}?action=update&tab=${tab}&id=${id}`, {
+    // POST /api?action=update&tab=pacientes com body={ id, ...data }
+    const payload = Object.assign({ id }, data || {});
+    const res = await fetch(`${API_URL}?action=update&tab=${encodeURIComponent(tab)}`, {
       method: "POST",
-      body: JSON.stringify(data),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
     });
-    return await res.json();
+    return await this._json(res); // { ok: true/false }
   },
+
   async remove(tab, id) {
-    const res = await fetch(`${API_URL}?action=delete&tab=${tab}&id=${id}`);
-    return await res.json();
+    // GET /api?action=delete&tab=agenda&id=123
+    const res = await fetch(
+      `${API_URL}?action=delete&tab=${encodeURIComponent(tab)}&id=${encodeURIComponent(id)}`
+    );
+    return await this._json(res); // { ok: true/false }
   },
 };
 
