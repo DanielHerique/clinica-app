@@ -273,3 +273,15 @@ footer{
 .cal-events::-webkit-scrollbar-thumb,
 .modal .modal-body::-webkit-scrollbar-thumb,
 .search-list::-webkit-scrollbar-thumb{ background:#d8deea; border-radius:8px; }
+
+/* barra de ações padrão dos modais */
+.modal .modal-buttons { gap: 8px; }
+
+/* tamanhos confortáveis */
+.btn-primario, .btn-secundario, .btn-perigo {
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+

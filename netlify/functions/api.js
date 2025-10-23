@@ -1,54 +1,47 @@
-// netlify/functions/api.js
 const GAS_BASE = "https://script.google.com/macros/s/AKfycbyh3YoV7WOCcC80KLTuaCQsXM-JrP9UryY2FTjVXuFMgdicjB-FrPzeKWsH5-c0tMWX/exec";
+const MEMO = new Map(); // key -> { ts, status, body }
+const TTL_MS = 20000;   // 20s
 
-export default async (req, res) => {
+export async function handler(event) {
   try {
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    const qs = url.search || "";
-    const target = GAS_BASE + qs;
+    const { httpMethod, queryStringParameters, body } = event;
+    const qs = new URLSearchParams(queryStringParameters || {}).toString();
+    const target = `${GAS_BASE}?${qs}`;
+    const key = `${httpMethod}:${target}`;
 
-    // Configuração da requisição
-    const init = {
-      method: req.method,
-      redirect: "manual", // <---- NÃO seguir redirect automático
-      headers: { "Content-Type": "application/json" },
-    };
-
-    if (req.method !== "GET" && req.method !== "HEAD") {
-      const chunks = [];
-      for await (const ch of req) chunks.push(ch);
-      const raw = Buffer.concat(chunks).toString() || "{}";
-      init.body = raw;
+    // cache apenas para GET
+    if (httpMethod === "GET") {
+      const hit = MEMO.get(key);
+      if (hit && Date.now() - hit.ts < TTL_MS) {
+        return {
+          statusCode: hit.status,
+          headers: hdrs(),
+          body: hit.body,
+        };
+      }
     }
 
-    // Executa requisição
+    const init = { method: httpMethod, headers: { "Content-Type": "application/json" } };
+    if (httpMethod !== "GET" && httpMethod !== "HEAD" && body) init.body = body;
+
     const r = await fetch(target, init);
-
-    // Se o GAS retornou um redirect (302), segue manualmente
-    if (r.status === 302) {
-      const redirectUrl = r.headers.get("location");
-      const follow = await fetch(redirectUrl);
-      const data = await follow.text();
-
-      res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-      return res.status(200).send(data);
-    }
-
-    // Caso normal
     const text = await r.text();
 
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    if (httpMethod === "GET" && r.ok) {
+      MEMO.set(key, { ts: Date.now(), status: r.status, body: text });
+    }
 
-    if (req.method === "OPTIONS") return res.status(204).end();
-
-    return res.status(r.status).send(text);
+    return { statusCode: r.status, headers: hdrs(), body: text };
   } catch (err) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.status(500).json({ ok: false, error: String(err) });
+    return { statusCode: 500, headers: hdrs(), body: JSON.stringify({ ok: false, error: String(err) }) };
   }
-};
+}
+
+function hdrs() {
+  return {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+}
