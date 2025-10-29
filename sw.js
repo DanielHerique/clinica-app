@@ -1,5 +1,5 @@
 // sw.js — Clínica App (PWA)
-const CACHE_NAME = "clinica-cache-45"; // <-- mude a versão sempre que alterar arquivos estáticos
+const CACHE_NAME = "clinica-cache-52"; // <-- mude a versão sempre que alterar arquivos estáticos
 const STATIC_ASSETS = [
   "./",
   "./index.html",
