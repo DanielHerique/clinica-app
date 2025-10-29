@@ -1,23 +1,77 @@
-// js/agenda.js
-// ======================================================================
-// Agenda — usa os getters/estado de window.APP (helpers.js).
-// Expõe: window.Pages.agenda(contentEl)
-// ======================================================================
-
+// --- topo do js/agenda.js ---
 (function () {
   window.Pages = window.Pages || {};
-  const {
-    api,
-    getPacientes,
-    getAgenda,
-    showToast,
-    UI,
-    toISODate,
-    fromISODate,
-    cap,
-  } = window.APP;
 
-  const CAL = { year: null, month: null };
+  // pega sempre a versão atual de APP
+  function APP() { return window.APP || {}; }
+
+  // shims seguros (fallbacks caso helpers ainda não esteja pronto)
+  function safeFns() {
+    const A = APP();
+    return {
+      api: A.api || (async () => ({ ok: false })),
+      getPacientes: A.getPacientes || (async () => []),
+      getAgenda: A.getAgenda || (async () => []),
+      showToast: A.showToast || ((m) => console.log("[toast]", m)),
+      UI: A.UI || { agendaFilterClienteId: "todos", agendaFilterText: "", inflight: new Set() },
+      toISODate: A.toISODate || ((d) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      }),
+      fromISODate: A.fromISODate || ((iso) => {
+        const [y, m, d] = String(iso).split("-").map(Number);
+        return new Date(y || 1970, (m || 1) - 1, d || 1);
+      }),
+      cap: A.cap || ((s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s)),
+      showGlobalLoading: A.showGlobalLoading || (() => {}),
+      hideGlobalLoading: A.hideGlobalLoading || (() => {}),
+    };
+  }
+
+  // >>> AQUI: crie wrappers que sempre chamam safeFns() na hora do uso
+  const api            = (...args) => safeFns().api(...args);
+  const getPacientes   = (...args) => safeFns().getPacientes(...args);
+  const getAgenda      = (...args) => safeFns().getAgenda(...args);
+  const showToast      = (...args) => safeFns().showToast(...args);
+  const UI             = safeFns().UI; // objeto vivo; se helpers já exportar, passará a ser o mesmo
+  const toISODate      = (...args) => safeFns().toISODate(...args);
+  const fromISODate    = (...args) => safeFns().fromISODate(...args);
+  const cap            = (...args) => safeFns().cap(...args);
+  // <<<
+
+  // estado local do calendário (compartilhado se já existir)
+  const CAL = (window.CAL = window.CAL || {
+    year: new Date().getFullYear(),
+    month: new Date().getMonth(),
+  });
+
+  // shims seguros (fallbacks caso helpers ainda não esteja pronto)
+  function safeFns() {
+    const A = APP();
+    return {
+      api: A.api || (async () => ({ ok: false })),
+      getPacientes: A.getPacientes || (async () => []),
+      getAgenda: A.getAgenda || (async () => []),
+      showToast: A.showToast || ((m) => console.log("[toast]", m)),
+      UI: A.UI || { agendaFilterClienteId: "todos", agendaFilterText: "", inflight: new Set() },
+      toISODate: A.toISODate || ((d) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      }),
+      fromISODate: A.fromISODate || ((iso) => {
+        const [y, m, d] = String(iso).split("-").map(Number);
+        return new Date(y || 1970, (m || 1) - 1, d || 1);
+      }),
+      cap: A.cap || ((s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s)),
+      showGlobalLoading: A.showGlobalLoading || (() => {}),
+      hideGlobalLoading: A.hideGlobalLoading || (() => {}),
+    };
+  }
+
 
   // -------------------------------------------------------
   // CSS-inject (ajustes de modal, cards e loader)

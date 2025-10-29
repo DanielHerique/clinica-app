@@ -134,6 +134,14 @@
   }
 
   // -------------------------------
+  // NF-e: aba/tab
+  // -------------------------------
+  async function detectNFeTab() {
+    // fixo por enquanto; se mudar o nome da aba, ajuste aqui
+    return "nfeRegistros";
+  }
+
+  // -------------------------------
   // Getters (compartilhados)
   // -------------------------------
   async function getPacientes(force = false) {
@@ -145,13 +153,13 @@
       const email = String(p.email || "");
       return {
         id: Number(p.id),
-        nome,                          // exibição
-        nomeLower: nome.toLowerCase(), // busca
+        nome,
+        nomeLower: nome.toLowerCase(),
         email: email.toLowerCase(),
         telefone: String(p.telefone || ""),
         cpf: String(p.cpf || ""),
         nascimento: String(p.dataNascimento || ""),
-        valor: String(p.valorSessao || ""), // string formatada; use parseBRL p/ número
+        valor: String(p.valorSessao || ""),
         status: String(p.status || "ativo").toLowerCase(),
         obs: String(p.obs || ""),
         createdAt: String(p.createdAt || ""),
@@ -172,7 +180,7 @@
       data: String(a.data || ""),
       hora: String(a.hora || ""),
       obs: String(a.obs || ""),
-      status: String(a.status || "pendente").toLowerCase(), // pendente|realizado|nao
+      status: String(a.status || "pendente").toLowerCase(),
       nfeNumero: String(a.nfeNumero || ""),
     }));
     return MEMORY.agenda;
@@ -180,8 +188,11 @@
 
   async function getNFEs(force = false) {
     if (MEMORY.nfeRegistros && !force) return MEMORY.nfeRegistros;
-    const res = await api({ action: "list", tab: "nfeRegistros" });
+
+    const tab = await detectNFeTab();
+    const res = await api({ action: "list", tab });
     if (!res.ok) return MEMORY.nfeRegistros || [];
+
     MEMORY.nfeRegistros = (res.data || []).map((r) => ({
       id: Number(r.id),
       clienteId: Number(r.clienteId),
@@ -189,12 +200,9 @@
       mesRef: String(r.mesRef || ""),
       codigo: String(r.codigo || ""),
       valor: String(r.valor || ""),
-      enviada:
-        String(r.enviada || "nao") === "true" ||
-        String(r.enviada || "nao") === "sim",
-      paga:
-        String(r.paga || "nao") === "true" ||
-        String(r.paga || "nao") === "sim",
+      enviada: ["true", "sim"].includes(String(r.enviada || "").toLowerCase()),
+      paga: ["true", "sim"].includes(String(r.paga || "").toLowerCase()),
+      obs: String(r.obs || ""),
       createdAt: String(r.createdAt || new Date().toISOString()),
     }));
     return MEMORY.nfeRegistros;
@@ -226,10 +234,13 @@
     mascaraMoeda,
 
     // ui
-    showToast, // (o main.js pode sobrescrever)
+    showToast,
 
     // api
     api,
+
+    // nfe tab
+    detectNFeTab,
 
     // getters
     getPacientes,
@@ -237,20 +248,3 @@
     getNFEs,
   });
 })();
-async function getNFEs(force = false) {
-  if (MEMORY.nfeRegistros && !force) return MEMORY.nfeRegistros;
-  const res = await api({ action: "list", tab: "nfe" }); // <-- aqui
-  if (!res.ok) return MEMORY.nfeRegistros || [];
-  MEMORY.nfeRegistros = (res.data || []).map((r) => ({
-    id: Number(r.id),
-    clienteId: Number(r.clienteId),
-    clienteNome: String(r.clienteNome || ""),
-    mesRef: String(r.mesRef || ""),
-    codigo: String(r.codigo || ""),
-    valor: String(r.valor || ""),
-    enviada: ["true","sim"].includes(String(r.enviada || "").toLowerCase()),
-    paga:    ["true","sim"].includes(String(r.paga || "").toLowerCase()),
-    createdAt: String(r.createdAt || new Date().toISOString()),
-  }));
-  return MEMORY.nfeRegistros;
-}

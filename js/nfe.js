@@ -6,41 +6,17 @@
 // ======================================================================
 
 (function () {
-  const {
-    api,
-    getNFEs,
-    getAgenda,
-    getPacientes,
-    showToast,
-    formatBRL,
-    parseBRL,
-  } = window.APP;
+  // >>> TROQUE AQUI SE SUA ABA TIVER OUTRO NOME
+  const NFE_TAB = "nfeRegistros"; // tente "nfe" se der rota inválida
 
-  // -------------------------------------------
-  // helpers locais
-  // -------------------------------------------
-  function withBtnLoader(btn, textWhile = "Salvando...") {
-    const prev = { html: btn.innerHTML, disabled: btn.disabled };
-    btn.innerHTML = textWhile;
-    btn.classList.add("btn-loading");
-    btn.disabled = true;
-    return () => {
-      btn.innerHTML = prev.html;
-      btn.classList.remove("btn-loading");
-      btn.disabled = prev.disabled;
-    };
-  }
+  function APP() { return window.APP || {}; }
 
-  function enableBackdropClose(modalEl) {
-    modalEl.addEventListener("click", (e) => {
-      if (e.target === modalEl) modalEl.style.display = "none";
-    });
-  }
-
-  // -------------------------------------------
-  // Página
-  // -------------------------------------------
   async function pageNFe(content) {
+    const {
+      api, getNFEs, getAgenda, getPacientes, showToast,
+      formatBRL, parseBRL
+    } = APP();
+
     const hoje = new Date();
     const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}`;
     const pacientes = await getPacientes();
@@ -124,6 +100,17 @@
     const inpVal  = content.querySelector("#nfeValor");
     const inpObs  = content.querySelector("#nfeObs");
 
+    // util
+    const withBtnLoader = (btn, textWhile = "Salvando...") => {
+      const prev = { html: btn.innerHTML, disabled: btn.disabled };
+      btn.innerHTML = textWhile;
+      btn.classList.add("btn-loading");
+      btn.disabled = true;
+      return () => { btn.innerHTML = prev.html; btn.classList.remove("btn-loading"); btn.disabled = prev.disabled; };
+    };
+    const enableBackdropClose = (modalEl) => {
+      modalEl.addEventListener("click", (e) => { if (e.target === modalEl) modalEl.style.display = "none"; });
+    };
     enableBackdropClose(modal);
     btnX.onclick = () => (modal.style.display = "none");
     btnCanc.onclick = () => (modal.style.display = "none");
@@ -134,13 +121,12 @@
 
     // abrir modal
     btnNovo.onclick = () => {
-      // preset mês atual do topo
       inpMes.value = elMes.value || mesAtual;
       inpObs.value = "";
       selCli.value = selCli.querySelector("option")?.value || "";
       inpVal.value = "—";
       modal.style.display = "flex";
-      atualizarValorAuto(); // calcula já na abertura
+      atualizarValorAuto();
     };
 
     // auto recalcular
@@ -153,7 +139,7 @@
     // Lista
     // -------------------------------------------
     async function renderLista() {
-      const lista = await getNFEs(true); // backend deve listar na TAB 'nfe'
+      const lista = await getNFEs(true); // usa o getter existente
       const termo = (elBusca.value || "").toLowerCase();
       const mes   = elMes.value;
 
@@ -202,17 +188,12 @@
     // -------------------------------------------
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const btn = content.querySelector("#nfeSalvar");
-      const restore = withBtnLoader(btn, "Registrando...");
-      const res = await api({ action: "add", tab: "nfe" }, "POST", payload);
-
-
+      const restore = withBtnLoader(content.querySelector("#nfeSalvar"), "Registrando...");
       try {
         const payload = {
           clienteId: Number(selCli.value),
           mesRef: inpMes.value,
-          // se o backend espera número, troque por: valor: parseBRL(inpVal.value)
-          valor: parseBRL(inpVal.value),
+          valor: parseBRL(inpVal.value),  // número; ajuste se quiser string BRL
           obs: inpObs.value.trim(),
         };
         if (!payload.clienteId || !payload.mesRef) {
@@ -220,8 +201,8 @@
           return;
         }
 
-        // TAB = 'nfe' (ajuste aqui se sua função usar outro nome)
-        const res = await api({ action: "add", tab: "nfe" }, "POST", payload);
+        // usa a aba fixa
+        const res = await api({ action: "add", tab: NFE_TAB }, "POST", payload);
         if (!res.ok) return;
 
         await getNFEs(true);
@@ -234,7 +215,6 @@
     });
   }
 
-  // registrar página
   window.Pages = window.Pages || {};
   window.Pages.nfe = pageNFe;
 })();
